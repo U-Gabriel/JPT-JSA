@@ -6,6 +6,7 @@ export const USER_ROLES = {
   MANAGER: 4,
   PREPARATOR: 5,
   ACCOUNTANT: 6,
+  ENGINEER: 7,
 } as const;
 
 // 2. Le type TypeScript extrait de la constante

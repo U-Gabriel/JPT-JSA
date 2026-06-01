@@ -10,7 +10,7 @@ const ROLE_OPTIONS = [
   { label: 'Manager', id: USER_ROLES.MANAGER },
   { label: 'Préparateur', id: USER_ROLES.PREPARATOR },
   { label: 'Comptable', id: USER_ROLES.ACCOUNTANT },
-];
+  { label: 'Ingénieur', id: USER_ROLES.ENGINEER },];
 
 const getRoleBadgeStyles = (roleId: number) => {
   switch (roleId) {
@@ -18,6 +18,7 @@ const getRoleBadgeStyles = (roleId: number) => {
     case USER_ROLES.ADMIN_SIMPLE: return 'bg-blue-50 text-blue-700 border-blue-100';
     case USER_ROLES.MANAGER: return 'bg-amber-50 text-amber-700 border-amber-100';
     case USER_ROLES.PREPARATOR: return 'bg-teal-50 text-teal-700 border-teal-100';
+    case USER_ROLES.ENGINEER: return 'bg-green-50 text-green-700 border-green-100';
     default: return 'bg-gray-50 text-gray-600 border-gray-100';
   }
 };
@@ -29,6 +30,7 @@ const getRoleLabel = (roleId: number): string => {
     case USER_ROLES.MANAGER: return 'Manager';
     case USER_ROLES.PREPARATOR: return 'Préparateur';
     case USER_ROLES.ACCOUNTANT: return 'Comptable';
+    case USER_ROLES.ENGINEER: return 'Ingénieur';
     default: return 'Client / User';
   }
 };
