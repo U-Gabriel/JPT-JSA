@@ -6,6 +6,7 @@ import { ProtectedRoute } from './components/ProtectedRoute';
 import { AdminLayout } from './components/AdminLayout';
 import { Login } from './pages/Login';
 import { Home } from './pages/Home';
+import { Users } from './pages/Users';
 
 export const App: React.FC = () => {
   return (
@@ -25,12 +26,7 @@ export const App: React.FC = () => {
           {/* 1. Utilisateurs (Super Admin seulement) */}
           <Route path="/users" element={
             <ProtectedRoute allowedRoles={[USER_ROLES.SUPER_ADMIN]}>
-              <AdminLayout>
-                <div className="bg-white p-6 rounded-xl border border-gray-200 shadow-sm">
-                  <h2 className="text-xl font-bold text-gray-900">Gestion des Utilisateurs</h2>
-                  <p className="text-gray-500 mt-1">Réservé au Super Administrateur.</p>
-                </div>
-              </AdminLayout>
+              <AdminLayout><Users /></AdminLayout>
             </ProtectedRoute>
           } />
 
