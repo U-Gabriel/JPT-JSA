@@ -3,6 +3,9 @@ export const USER_ROLES = {
   BANNED: 1,
   ADMIN_SIMPLE: 2,
   SUPER_ADMIN: 3,
+  MANAGER: 4,
+  PREPARATOR: 5,
+  ACCOUNTANT: 6,
 } as const;
 
 // 2. Le type TypeScript extrait de la constante
