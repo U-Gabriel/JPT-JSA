@@ -12,6 +12,7 @@ interface NavigationItem {
 const NAVIGATION_ITEMS: NavigationItem[] = [
   { name: 'Utilisateurs', href: '/users', allowedRoles: [USER_ROLES.SUPER_ADMIN] },
   { name: 'Objet', href: '/objects', allowedRoles: [USER_ROLES.ADMIN_SIMPLE, USER_ROLES.SUPER_ADMIN, USER_ROLES.ENGINEER] },
+  { name: 'Plantes', href: '/plants', allowedRoles: [USER_ROLES.ADMIN_SIMPLE, USER_ROLES.SUPER_ADMIN] },
   { name: 'Avis', href: '/reviews', allowedRoles: [USER_ROLES.ADMIN_SIMPLE, USER_ROLES.SUPER_ADMIN] },
   { name: 'Indication', href: '/indications', allowedRoles: [USER_ROLES.ADMIN_SIMPLE, USER_ROLES.SUPER_ADMIN] },
   { name: 'Commande', href: '/orders', allowedRoles: [USER_ROLES.ADMIN_SIMPLE, USER_ROLES.SUPER_ADMIN, USER_ROLES.MANAGER, USER_ROLES.PREPARATOR] },

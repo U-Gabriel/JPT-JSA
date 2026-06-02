@@ -8,6 +8,7 @@ import { Login } from './pages/Login';
 import { Home } from './pages/Home';
 import { Users } from './pages/Users';
 import { Objects } from './pages/Objects';
+import { Plants } from './pages/Plant';
 
 export const App: React.FC = () => {
   return (
@@ -35,6 +36,13 @@ export const App: React.FC = () => {
           <Route path="/objects" element={
             <ProtectedRoute allowedRoles={[USER_ROLES.SUPER_ADMIN, USER_ROLES.ADMIN_SIMPLE, USER_ROLES.ENGINEER]}>
               <AdminLayout><Objects /></AdminLayout> {/* 🟢 Changé <Users /> par <Objects /> */}
+            </ProtectedRoute>
+          } />
+
+          {/* 3. Plantes (Admin & Super Admin) */}
+          <Route path="/plants" element={
+            <ProtectedRoute allowedRoles={[USER_ROLES.SUPER_ADMIN, USER_ROLES.ADMIN_SIMPLE, USER_ROLES.ENGINEER]}>
+              <AdminLayout><Plants /></AdminLayout> {/* 🟢 Changé <Users /> par <Plants /> */}
             </ProtectedRoute>
           } />
 

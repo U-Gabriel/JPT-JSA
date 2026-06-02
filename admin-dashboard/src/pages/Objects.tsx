@@ -594,6 +594,7 @@ export const Objects: React.FC = () => {
                             <div className="grid grid-cols-1 md:grid-cols-2 gap-x-6 gap-y-3">
                             <p><strong>SKU :</strong> {obj.sku}</p>
                             <p><strong>Marque :</strong> {obj.brand || 'N/A'}</p>
+                            <p><strong>Prix :</strong> {obj.price ? `${obj.price} €` : 'N/A'}</p>
                             <p><strong>Prix Discount :</strong> {obj.discount_price ? `${obj.discount_price} €` : 'N/A'}</p>
                             <p><strong>Tag :</strong> {obj.tag_name || 'Aucun'}</p>
                             <p><strong>Poids / Hauteur :</strong> {obj.weight ?? 0} kg / {obj.height ?? 0} cm</p>
