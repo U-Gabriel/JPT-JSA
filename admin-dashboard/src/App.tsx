@@ -7,6 +7,7 @@ import { AdminLayout } from './components/AdminLayout';
 import { Login } from './pages/Login';
 import { Home } from './pages/Home';
 import { Users } from './pages/Users';
+import { Objects } from './pages/Objects';
 
 export const App: React.FC = () => {
   return (
@@ -30,14 +31,10 @@ export const App: React.FC = () => {
             </ProtectedRoute>
           } />
 
-          {/* 2. Objet (Admin & Super Admin) */}
+          {/* 2. Objet (Admin Simple, Super Admin & Engineer) */}
           <Route path="/objects" element={
-            <ProtectedRoute allowedRoles={[USER_ROLES.ADMIN_SIMPLE, USER_ROLES.SUPER_ADMIN]}>
-              <AdminLayout>
-                <div className="bg-white p-6 rounded-xl border border-gray-200 shadow-sm">
-                  <h2 className="text-xl font-bold text-gray-900">Gestion des Objets</h2>
-                </div>
-              </AdminLayout>
+            <ProtectedRoute allowedRoles={[USER_ROLES.SUPER_ADMIN, USER_ROLES.ADMIN_SIMPLE, USER_ROLES.ENGINEER]}>
+              <AdminLayout><Objects /></AdminLayout> {/* 🟢 Changé <Users /> par <Objects /> */}
             </ProtectedRoute>
           } />
 
