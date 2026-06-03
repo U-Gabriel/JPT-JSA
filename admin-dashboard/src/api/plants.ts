@@ -139,3 +139,13 @@ export const getAllPlantsApi = async (): Promise<GetPlantsResponse> => {
   const response = await api.get<GetPlantsResponse>('/plants/all');
   return response.data;
 };
+
+/**
+ * Supprime une espèce configurée via son ID
+ */
+export const deletePlantApi = async (id_plant_type: number): Promise<ApiResponse> => {
+  const response = await api.post<ApiResponse>('/plants/delete', {
+    id_plant_type: id_plant_type
+  });
+  return response.data;
+};
