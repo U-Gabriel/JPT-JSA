@@ -8,7 +8,8 @@ import { Login } from './pages/Login';
 import { Home } from './pages/Home';
 import { Users } from './pages/Users';
 import { Objects } from './pages/Objects';
-import { Plants } from './pages/Plant';
+import { Plants } from './pages/Plants';
+import Notices from './pages/Notices';
 
 export const App: React.FC = () => {
   return (
@@ -42,18 +43,14 @@ export const App: React.FC = () => {
           {/* 3. Plantes (Admin & Super Admin) */}
           <Route path="/plants" element={
             <ProtectedRoute allowedRoles={[USER_ROLES.SUPER_ADMIN, USER_ROLES.ADMIN_SIMPLE, USER_ROLES.ENGINEER]}>
-              <AdminLayout><Plants /></AdminLayout> {/* 🟢 Changé <Users /> par <Plants /> */}
+              <AdminLayout><Plants /></AdminLayout> 
             </ProtectedRoute>
           } />
 
           {/* 3. Avis (Admin & Super Admin) */}
-          <Route path="/reviews" element={
-            <ProtectedRoute allowedRoles={[USER_ROLES.ADMIN_SIMPLE, USER_ROLES.SUPER_ADMIN]}>
-              <AdminLayout>
-                <div className="bg-white p-6 rounded-xl border border-gray-200 shadow-sm">
-                  <h2 className="text-xl font-bold text-gray-900">Modération des Avis</h2>
-                </div>
-              </AdminLayout>
+          <Route path="/notices" element={
+            <ProtectedRoute allowedRoles={[USER_ROLES.SUPER_ADMIN, USER_ROLES.ADMIN_SIMPLE, USER_ROLES.MANAGER, USER_ROLES.ENGINEER]}>
+              <AdminLayout><Notices /></AdminLayout> 
             </ProtectedRoute>
           } />
 
