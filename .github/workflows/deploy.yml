@@ -32,4 +32,5 @@ jobs:
         key: ${{ secrets.VPS_SSH_KEY }}     # Ta clé privée SSH
         source: "admin-dashboard/dist/"
         target: "/var/www/html/gabuzarf"
+        strip_components: 2
         overwrite: true
