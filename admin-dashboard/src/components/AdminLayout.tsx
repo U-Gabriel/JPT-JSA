@@ -2,6 +2,7 @@ import React, { useState, useEffect } from 'react';
 import { useNavigate, Link, useLocation } from 'react-router-dom';
 import { useAuth } from '../contexts/AuthContext';
 import { USER_ROLES, type UserRole } from '../types/auth';
+import logoWhite from '../assets/logo_original_white.png';
 
 interface NavigationItem {
   name: string;
@@ -75,7 +76,7 @@ export const AdminLayout: React.FC<{ children: React.ReactNode }> = ({ children 
         <div className="h-16 flex items-center justify-between px-4 bg-slate-950 border-b border-slate-800 shrink-0">
           <Link to="/" className="flex items-center justify-center flex-1">
             <img 
-              src="/src/assets/logo_original_white.png" 
+              src={logoWhite} 
               alt="Jackpote Logo" 
               className="h-11 w-auto object-contain"
             />
