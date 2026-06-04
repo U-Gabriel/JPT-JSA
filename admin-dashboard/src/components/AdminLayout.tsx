@@ -74,7 +74,7 @@ export const AdminLayout: React.FC<{ children: React.ReactNode }> = ({ children 
         <div className="h-16 flex items-center justify-between px-4 bg-slate-950 border-b border-slate-800 shrink-0">
           <Link to="/" className="flex items-center justify-center flex-1">
             <img 
-              src="./logo_original_white.png" 
+              src="./gabuzarf/assets/logo_original_white.png" 
               alt="Jackpote Logo" 
               className="h-11 w-auto object-contain"
             />
