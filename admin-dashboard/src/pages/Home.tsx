@@ -1,6 +1,5 @@
 import React, { useEffect, useState } from 'react';
 import { Link } from 'react-router-dom';
-import { useAuth } from '../contexts/AuthContext';
 import { USER_ROLES, type UserRole } from '../types/auth';
 import { getMeApi } from '../api/auth';
 
