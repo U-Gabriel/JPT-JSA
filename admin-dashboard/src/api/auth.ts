@@ -22,3 +22,21 @@ export const loginApi = async (pseudo: string, password: string): Promise<ApiRes
     };
   }
 };
+
+// --- RÉCUPÉRATION DU PROFIL UTILISATEUR CONNECTÉ ---
+export const getMeApi = async (): Promise<ApiResponse<any>> => {
+  try {
+    const response = await api.get<ApiResponse<any>>('/persons/me');
+    return response.data;
+  } catch (error: any) {
+    if (error.response && error.response.data) {
+      return error.response.data;
+    }
+    return {
+      status: 'KO',
+      message: 'Impossible de charger le profil.',
+      code: 500,
+      data: null,
+    };
+  }
+};
