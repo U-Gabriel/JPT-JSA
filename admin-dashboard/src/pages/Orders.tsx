@@ -28,11 +28,19 @@ const Orders: React.FC = () => {
 
   // --- ÉTATS D'AFFICHAGE & CHARGEMENTS ---
   const [showStockForm, setShowStockForm] = useState<boolean>(false);
-  const [loadingStatuses, setLoadingStatuses] = useState<{ [key: string]: boolean }>({
+  const [loadingStatuses, setLoadingStatuses] = useState<{ [key in OrderStatus]?: boolean }>({
     PAID: false, LOADING: false, SENDING: false, CLOSED: false
   });
   const [expandedOrders, setExpandedOrders] = useState<{ [key: number]: boolean }>({});
   const [actionLoadingIds, setActionLoadingIds] = useState<{ [key: number]: boolean }>({});
+  
+  // 🔄 ÉTAT POUR PLIER/DÉPLIER LES LISTES ENTIÈRES (Ouvertes par défaut)
+  const [expandedLists, setExpandedLists] = useState<{ [key in OrderStatus]: boolean }>({
+    PAID: true,
+    LOADING: true,
+    SENDING: true,
+    CLOSED: true
+  });
   
   // Choix temporaire du select pour la liste CLOSED
   const [selectedClosedStatus, setSelectedClosedStatus] = useState<{ [key: number]: OrderStatus }>({});
@@ -50,14 +58,14 @@ const Orders: React.FC = () => {
   };
 
   // --- VERIFICATION DES DROITS POUR LE FLUX CLOSED ---
-  // Autorisé pour : ADMIN_SIMPLE, SUPER_ADMIN et MANAGER
   const allowedRoles: UserRole[] = [
     USER_ROLES.SUPER_ADMIN,
     USER_ROLES.ADMIN_SIMPLE,
     USER_ROLES.MANAGER
-];
+  ];
 
-    const canSeeClosedOrders = user && allowedRoles.includes(user.id_role);
+  const canSeeClosedOrders = user && allowedRoles.includes(user.id_role);
+
   // --- CHARGEMENT D'UNE LISTE UNIQUE CIBLÉE ---
   const fetchOrdersByStatus = async (status: OrderStatus) => {
     setLoadingStatuses(prev => ({ ...prev, [status]: true }));
@@ -81,24 +89,21 @@ const Orders: React.FC = () => {
   // --- CHARGEMENT AUTOMATIQUE AU CHARGEMENT DE LA PAGE ---
   useEffect(() => {
     if (user) {
-      // Lance l'appel immédiat des flux de base
       fetchOrdersByStatus('PAID');
       fetchOrdersByStatus('LOADING');
       fetchOrdersByStatus('SENDING');
       
-      // Charge le flux CLOSED uniquement si l'utilisateur détient les droits requis
       if (canSeeClosedOrders) {
         fetchOrdersByStatus('CLOSED');
       }
 
-      // Récupération de la liste des objets pour le formulaire
       getObjectsLookupApi()
         .then(resObj => {
           if (resObj.status === 'OK') setObjects(resObj.data);
         })
         .catch(err => console.error(err));
     }
-  }, [user, user?.id_role]); // S'exécute automatiquement dès que l'utilisateur est authentifié
+  }, [user, user?.id_role]);
 
   // --- MISE À JOUR DU STATUT D'UNE COMMANDE ---
   const handleUpdateStatus = async (id_order: number, currentStatus: OrderStatus, nextStatus: OrderStatus) => {
@@ -107,9 +112,7 @@ const Orders: React.FC = () => {
       const res = await updateOrderStatusApi({ id_order, status: nextStatus });
       if (res.status === 'OK') {
         triggerNotification(`Commande N°${id_order} passée en ${nextStatus} !`, 'success');
-        // Nettoie l'état déplié si la commande change de liste
         setExpandedOrders(prev => ({ ...prev, [id_order]: false }));
-        // Rafraîchissement automatique des deux flux concernés
         fetchOrdersByStatus(currentStatus);
         fetchOrdersByStatus(nextStatus);
       } else {
@@ -151,9 +154,13 @@ const Orders: React.FC = () => {
     }
   };
 
-  // 🔄 CORRECTION : Gestion propre de l'inversion d'état (Déplier / Replier)
   const toggleExpandOrder = (id_order: number) => {
     setExpandedOrders(prev => ({ ...prev, [id_order]: !prev[id_order] }));
+  };
+
+  // Inverser l'état d'ouverture d'une liste entière
+  const toggleExpandList = (status: OrderStatus) => {
+    setExpandedLists(prev => ({ ...prev, [status]: !prev[status] }));
   };
 
   // --- RENDER D'UNE LIGNE DE TABLEAU INTERACTIVE ---
@@ -161,8 +168,6 @@ const Orders: React.FC = () => {
     const isExpanded = expandedOrders[order.id_order] || false;
     return (
       <div key={order.id_order} className="border-b border-gray-100 last:border-0">
-        
-        {/* Entête cliquable : Permet désormais d'ouvrir ET de fermer la ligne librement */}
         <div 
           onClick={() => toggleExpandOrder(order.id_order)} 
           className="flex flex-col md:flex-row md:items-center justify-between p-4 gap-4 hover:bg-slate-50/70 transition-colors cursor-pointer text-xs"
@@ -198,7 +203,6 @@ const Orders: React.FC = () => {
           </div>
         </div>
 
-        {/* Bloc descriptif des articles commandés */}
         {isExpanded && (
           <div className="bg-slate-50/50 p-4 border-t border-dashed border-gray-100 text-xs">
             <div className="bg-white rounded-lg border border-gray-100 p-3 max-w-2xl space-y-2 shadow-2xs">
@@ -309,133 +313,165 @@ const Orders: React.FC = () => {
 
           {/* FLUX 1 : PAID */}
           <div className="bg-white rounded-xl border border-gray-200 shadow-xs overflow-hidden">
-            <div className="p-4 bg-amber-50/50 border-b border-gray-100 flex justify-between items-center">
+            <div 
+              onClick={() => toggleExpandList('PAID')}
+              className="p-4 bg-amber-50/50 border-b border-gray-100 flex justify-between items-center cursor-pointer select-none hover:bg-amber-100/40 transition-colors"
+            >
               <h3 className="font-black text-xs uppercase tracking-wider text-amber-800 flex items-center gap-1.5">
                 <span className="w-2 h-2 rounded-full bg-amber-500"></span> 💳 Commandes PAID (À préparer)
               </h3>
-              <button onClick={() => fetchOrdersByStatus('PAID')} className="text-[11px] text-amber-700 font-bold hover:underline">
-                {loadingStatuses['PAID'] ? 'Chargement...' : '🔄 Rafraîchir'}
-              </button>
+              <div className="flex items-center gap-4" onClick={e => e.stopPropagation()}>
+                <button onClick={() => fetchOrdersByStatus('PAID')} className="text-[11px] text-amber-700 font-bold hover:underline">
+                  {loadingStatuses['PAID'] ? 'Chargement...' : '🔄 Rafraîchir'}
+                </button>
+                <span className="text-xs text-amber-800 font-bold">{expandedLists['PAID'] ? '🔼' : '🔽'}</span>
+              </div>
             </div>
-            <div className="divide-y divide-gray-100">
-              {ordersPaid.length === 0 ? (
-                <div className="p-6 text-center text-xs text-gray-400">Aucune commande en attente de préparation.</div>
-              ) : (
-                ordersPaid.map(order => renderOrderRow(order, (
-                  <button
-                    disabled={actionLoadingIds[order.id_order]}
-                    onClick={() => handleUpdateStatus(order.id_order, 'PAID', 'LOADING')}
-                    className="px-3 py-1.5 bg-amber-600 hover:bg-amber-700 text-white rounded-md text-[11px] font-bold transition-all shadow-xs"
-                  >
-                    🚀 Lancer la préparation
-                  </button>
-                )))
-              )}
-            </div>
+            {expandedLists['PAID'] && (
+              <div className="divide-y divide-gray-100">
+                {ordersPaid.length === 0 ? (
+                  <div className="p-6 text-center text-xs text-gray-400">Aucune commande en attente de préparation.</div>
+                ) : (
+                  ordersPaid.map(order => renderOrderRow(order, (
+                    <button
+                      disabled={actionLoadingIds[order.id_order]}
+                      onClick={() => handleUpdateStatus(order.id_order, 'PAID', 'LOADING')}
+                      className="px-3 py-1.5 bg-amber-600 hover:bg-amber-700 text-white rounded-md text-[11px] font-bold transition-all shadow-xs"
+                    >
+                      🚀 Lancer la préparation
+                    </button>
+                  )))
+                )}
+              </div>
+            )}
           </div>
 
           {/* FLUX 2 : LOADING */}
           <div className="bg-white rounded-xl border border-gray-200 shadow-xs overflow-hidden">
-            <div className="p-4 bg-blue-50/50 border-b border-gray-100 flex justify-between items-center">
+            <div 
+              onClick={() => toggleExpandList('LOADING')}
+              className="p-4 bg-blue-50/50 border-b border-gray-100 flex justify-between items-center cursor-pointer select-none hover:bg-blue-100/40 transition-colors"
+            >
               <h3 className="font-black text-xs uppercase tracking-wider text-blue-800 flex items-center gap-1.5">
                 <span className="w-2 h-2 rounded-full bg-blue-500"></span> 📦 Commandes LOADING (En cours de carton)
               </h3>
-              <button onClick={() => fetchOrdersByStatus('LOADING')} className="text-[11px] text-blue-700 font-bold hover:underline">
-                {loadingStatuses['LOADING'] ? 'Chargement...' : '🔄 Rafraîchir'}
-              </button>
+              <div className="flex items-center gap-4" onClick={e => e.stopPropagation()}>
+                <button onClick={() => fetchOrdersByStatus('LOADING')} className="text-[11px] text-blue-700 font-bold hover:underline">
+                  {loadingStatuses['LOADING'] ? 'Chargement...' : '🔄 Rafraîchir'}
+                </button>
+                <span className="text-xs text-blue-800 font-bold">{expandedLists['LOADING'] ? '🔼' : '🔽'}</span>
+              </div>
             </div>
-            <div className="divide-y divide-gray-100">
-              {ordersLoading.length === 0 ? (
-                <div className="p-6 text-center text-xs text-gray-400">Aucune commande en cours d'emballage.</div>
-              ) : (
-                ordersLoading.map(order => renderOrderRow(order, (
-                  <button
-                    disabled={actionLoadingIds[order.id_order]}
-                    onClick={() => handleUpdateStatus(order.id_order, 'LOADING', 'SENDING')}
-                    className="px-3 py-1.5 bg-blue-600 hover:bg-blue-700 text-white rounded-md text-[11px] font-bold transition-all shadow-xs"
-                  >
-                    🚚 Marquer comme Expédiée
-                  </button>
-                )))
-              )}
-            </div>
+            {expandedLists['LOADING'] && (
+              <div className="divide-y divide-gray-100">
+                {ordersLoading.length === 0 ? (
+                  <div className="p-6 text-center text-xs text-gray-400">Aucune commande en cours d'emballage.</div>
+                ) : (
+                  ordersLoading.map(order => renderOrderRow(order, (
+                    <button
+                      disabled={actionLoadingIds[order.id_order]}
+                      onClick={() => handleUpdateStatus(order.id_order, 'LOADING', 'SENDING')}
+                      className="px-3 py-1.5 bg-blue-600 hover:bg-blue-700 text-white rounded-md text-[11px] font-bold transition-all shadow-xs"
+                    >
+                      🚚 Marquer comme Expédiée
+                    </button>
+                  )))
+                )}
+              </div>
+            )}
           </div>
 
           {/* FLUX 3 : SENDING */}
           <div className="bg-white rounded-xl border border-gray-200 shadow-xs overflow-hidden">
-            <div className="p-4 bg-indigo-50/50 border-b border-gray-100 flex justify-between items-center">
+            <div 
+              onClick={() => toggleExpandList('SENDING')}
+              className="p-4 bg-indigo-50/50 border-b border-gray-100 flex justify-between items-center cursor-pointer select-none hover:bg-indigo-100/40 transition-colors"
+            >
               <h3 className="font-black text-xs uppercase tracking-wider text-indigo-800 flex items-center gap-1.5">
                 <span className="w-2 h-2 rounded-full bg-indigo-500"></span> 🚚 Commandes SENDING (En transit)
               </h3>
-              <button onClick={() => fetchOrdersByStatus('SENDING')} className="text-[11px] text-indigo-700 font-bold hover:underline">
-                {loadingStatuses['SENDING'] ? 'Chargement...' : '🔄 Rafraîchir'}
-              </button>
+              <div className="flex items-center gap-4" onClick={e => e.stopPropagation()}>
+                <button onClick={() => fetchOrdersByStatus('SENDING')} className="text-[11px] text-indigo-700 font-bold hover:underline">
+                  {loadingStatuses['SENDING'] ? 'Chargement...' : '🔄 Rafraîchir'}
+                </button>
+                <span className="text-xs text-indigo-800 font-bold">{expandedLists['SENDING'] ? '🔼' : '🔽'}</span>
+              </div>
             </div>
-            <div className="divide-y divide-gray-100">
-              {ordersSending.length === 0 ? (
-                <div className="p-6 text-center text-xs text-gray-400">Aucune commande en transit.</div>
-              ) : (
-                ordersSending.map(order => renderOrderRow(order, (
-                  <button
-                    disabled={actionLoadingIds[order.id_order]}
-                    onClick={() => handleUpdateStatus(order.id_order, 'SENDING', 'CLOSED')}
-                    className="px-3 py-1.5 bg-indigo-600 hover:bg-indigo-700 text-white rounded-md text-[11px] font-bold transition-all shadow-xs"
-                  >
-                    🔒 Clôturer la commande
-                  </button>
-                )))
-              )}
-            </div>
+            {expandedLists['SENDING'] && (
+              <div className="divide-y divide-gray-100">
+                {ordersSending.length === 0 ? (
+                  <div className="p-6 text-center text-xs text-gray-400">Aucune commande en transit.</div>
+                ) : (
+                  ordersSending.map(order => renderOrderRow(order, (
+                    <button
+                      disabled={actionLoadingIds[order.id_order]}
+                      onClick={() => handleUpdateStatus(order.id_order, 'SENDING', 'CLOSED')}
+                      className="px-3 py-1.5 bg-indigo-600 hover:bg-indigo-700 text-white rounded-md text-[11px] font-bold transition-all shadow-xs"
+                    >
+                      🔒 Clôturer la commande
+                    </button>
+                  )))
+                )}
+              </div>
+            )}
           </div>
 
-          {/* FLUX 4 : CLOSED (Affiché de façon ultra confidentielle sans message alternatif) */}
+          {/* FLUX 4 : CLOSED */}
           {canSeeClosedOrders && (
             <div className="bg-white rounded-xl border border-gray-200 shadow-xs overflow-hidden animate-fadeIn">
-              <div className="p-4 bg-slate-100/70 border-b border-gray-100 flex justify-between items-center">
+              <div 
+                onClick={() => toggleExpandList('CLOSED')}
+                className="p-4 bg-slate-100/70 border-b border-gray-100 flex justify-between items-center cursor-pointer select-none hover:bg-slate-200/60 transition-colors"
+              >
                 <h3 className="font-black text-xs uppercase tracking-wider text-slate-800 flex items-center gap-1.5">
                   <span className="w-2 h-2 rounded-full bg-slate-500"></span> ✅ Archivé : Commandes CLOSED
                 </h3>
-                <button onClick={() => fetchOrdersByStatus('CLOSED')} className="text-[11px] text-slate-700 font-bold hover:underline">
-                  {loadingStatuses['CLOSED'] ? 'Chargement...' : '🔄 Rafraîchir'}
-                </button>
+                <div className="flex items-center gap-4" onClick={e => e.stopPropagation()}>
+                  <button onClick={() => fetchOrdersByStatus('CLOSED')} className="text-[11px] text-slate-700 font-bold hover:underline">
+                    {loadingStatuses['CLOSED'] ? 'Chargement...' : '🔄 Rafraîchir'}
+                  </button>
+                  <span className="text-xs text-slate-800 font-bold">{expandedLists['CLOSED'] ? '🔼' : '🔽'}</span>
+                </div>
               </div>
-              <div className="divide-y divide-gray-100">
-                {ordersClosed.length === 0 ? (
-                  <div className="p-6 text-center text-xs text-gray-400">Aucune commande archivée.</div>
-                ) : (
-                  ordersClosed.map(order => {
-                    const currentChosen = selectedClosedStatus[order.id_order] || 'CLOSED';
-                    return renderOrderRow(order, (
-                      <div className="flex items-center gap-2">
-                        <select
-                          value={currentChosen}
-                          onChange={(e) => setSelectedClosedStatus({
-                            ...selectedClosedStatus,
-                            [order.id_order]: e.target.value as OrderStatus
-                          })}
-                          className="bg-gray-50 border border-gray-200 rounded p-1 text-[11px] font-medium text-slate-800"
-                        >
-                          <option value="CLOSED">CLOSED</option>
-                          <option value="PAID">PAID</option>
-                          <option value="LOADING">LOADING</option>
-                          <option value="SENDING">SENDING</option>
-                        </select>
-                        <button
-                          disabled={currentChosen === 'CLOSED' || actionLoadingIds[order.id_order]}
-                          onClick={() => handleUpdateStatus(order.id_order, 'CLOSED', currentChosen)}
-                          className={`px-2 py-1 rounded text-[10px] font-black uppercase tracking-wide border transition-all ${
-                            currentChosen !== 'CLOSED'
-                              ? 'bg-emerald-600 text-white border-emerald-600 cursor-pointer hover:bg-emerald-700'
-                              : 'bg-gray-50 text-gray-300 border-gray-100 cursor-not-allowed'
-                          }`}
-                        >
-                          OK
-                        </button>
-                      </div>
-                    ));
-                  })
-                )}
-              </div>
+              {expandedLists['CLOSED'] && (
+                <div className="divide-y divide-gray-100">
+                  {ordersClosed.length === 0 ? (
+                    <div className="p-6 text-center text-xs text-gray-400">Aucune commande archivée.</div>
+                  ) : (
+                    ordersClosed.map(order => {
+                      const currentChosen = selectedClosedStatus[order.id_order] || 'CLOSED';
+                      return renderOrderRow(order, (
+                        <div className="flex items-center gap-2">
+                          <select
+                            value={currentChosen}
+                            onChange={(e) => setSelectedClosedStatus({
+                              ...selectedClosedStatus,
+                              [order.id_order]: e.target.value as OrderStatus
+                            })}
+                            className="bg-gray-50 border border-gray-200 rounded p-1 text-[11px] font-medium text-slate-800"
+                          >
+                            <option value="CLOSED">CLOSED</option>
+                            <option value="PAID">PAID</option>
+                            <option value="LOADING">LOADING</option>
+                            <option value="SENDING">SENDING</option>
+                          </select>
+                          <button
+                            disabled={currentChosen === 'CLOSED' || actionLoadingIds[order.id_order]}
+                            onClick={() => handleUpdateStatus(order.id_order, 'CLOSED', currentChosen)}
+                            className={`px-2 py-1 rounded text-[10px] font-black uppercase tracking-wide border transition-all ${
+                              currentChosen !== 'CLOSED'
+                                ? 'bg-emerald-600 text-white border-emerald-600 cursor-pointer hover:bg-emerald-700'
+                                : 'bg-gray-50 text-gray-300 border-gray-100 cursor-not-allowed'
+                            }`}
+                          >
+                            OK
+                          </button>
+                        </div>
+                      ));
+                    })
+                  )}
+                </div>
+              )}
             </div>
           )}
 
