@@ -10,6 +10,8 @@ import { Users } from './pages/Users';
 import { Objects } from './pages/Objects';
 import { Plants } from './pages/Plants';
 import Notices from './pages/Notices';
+import Indications from './pages/Indications';
+import Orders from './pages/Orders';
 
 export const App: React.FC = () => {
   return (
@@ -56,23 +58,16 @@ export const App: React.FC = () => {
 
           {/* 4. Indication (Admin & Super Admin) */}
           <Route path="/indications" element={
-            <ProtectedRoute allowedRoles={[USER_ROLES.ADMIN_SIMPLE, USER_ROLES.SUPER_ADMIN]}>
-              <AdminLayout>
-                <div className="bg-white p-6 rounded-xl border border-gray-200 shadow-sm">
-                  <h2 className="text-xl font-bold text-gray-900">Gestion des Indications</h2>
-                </div>
-              </AdminLayout>
+            <ProtectedRoute allowedRoles={[USER_ROLES.SUPER_ADMIN, USER_ROLES.ADMIN_SIMPLE]}>
+              <AdminLayout><Indications /></AdminLayout> 
             </ProtectedRoute>
           } />
+
 
           {/* 5. Commande (Admin, Super Admin, Manager, Preparator) */}
           <Route path="/orders" element={
             <ProtectedRoute allowedRoles={[USER_ROLES.ADMIN_SIMPLE, USER_ROLES.SUPER_ADMIN, USER_ROLES.MANAGER, USER_ROLES.PREPARATOR]}>
-              <AdminLayout>
-                <div className="bg-white p-6 rounded-xl border border-gray-200 shadow-sm">
-                  <h2 className="text-xl font-bold text-gray-900">Suivi des Commandes</h2>
-                </div>
-              </AdminLayout>
+              <AdminLayout><Orders /></AdminLayout>
             </ProtectedRoute>
           } />
 
