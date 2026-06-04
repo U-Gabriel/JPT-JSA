@@ -16,7 +16,7 @@ import Orders from './pages/Orders';
 export const App: React.FC = () => {
   return (
     <AuthProvider>
-      <BrowserRouter>
+      <BrowserRouter basename="/gabuzarf">
         <Routes>
           {/* Route publique */}
           <Route path="/login" element={<Login />} />
