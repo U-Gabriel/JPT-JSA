@@ -19,6 +19,7 @@ jobs:
         node-version: 20
 
     - name: Installer les dépendances et Build
+      working-directory: ./admin-dashboard
       run: |
         npm install
         npm run build
@@ -29,6 +30,6 @@ jobs:
         host: ${{ secrets.VPS_HOST }}       # L'IP de ton VPS
         username: ${{ secrets.VPS_USER }}   # Ton nom d'utilisateur (ex: root, ubuntu...)
         key: ${{ secrets.VPS_SSH_KEY }}     # Ta clé privée SSH
-        source: "dist/"
+        source: "admin-dashboard/dist/"
         target: "/var/www/html/gabuzarf"
         overwrite: true
