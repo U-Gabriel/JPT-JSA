@@ -28,22 +28,23 @@ export const Login: React.FC = () => {
     setLoading(false);
 
     if (response.status === 'OK' && response.data) {
-
-        if (response.data.id_role === 1) {
-            setError("This pseudo and password not matching.");
-            return; // On stoppe tout ici, pas de redirection !
-        }
-        login(response.data);
-        navigate('/');
+      // 🔒 Sécurité : Un utilisateur simple (id_role === 1) n'a rien à faire sur le panel d'administration
+      if (response.data.id_role === 1) {
+        setError("Identifiants incorrects ou accès non autorisé.");
+        return; 
+      }
+      
+      // Enregistre l'utilisateur (avec ses jetons token et refresh_token) dans le contexte & localStorage
+      login(response.data);
+      navigate('/');
     } else {
-        setError(response.message || 'Une erreur est survenue.');
+      setError(response.message || 'Une erreur est survenue.');
     }
   };
 
   return (
     <div className="min-h-screen bg-gray-50 flex flex-col justify-center py-12 sm:px-6 lg:px-8 font-sans">
       <div className="sm:mx-auto w-full max-w-md">
-        {/* Vous pourrez mettre le logo de votre entreprise Jackpote ici */}
         <h2 className="text-center text-3xl font-extrabold text-gray-900 tracking-tight">
           Espace Administration
         </h2>
