@@ -216,8 +216,12 @@ export const Objects: React.FC = () => {
         const [isLoading, setIsLoading] = useState(true); // État pour le loader
 
         const getImageUrl = (path: string) => {
-            if (path.startsWith('http')) return path;
-            return `https://gdome.fr${path}`;
+          if (!path) return '';
+          if (path.startsWith('http')) return path;
+          
+          // Si le chemin ne commence pas par un coup de slash, on le rajoute
+          const cleanPath = path.startsWith('/') ? path : `/${path}`;
+          return `https://gdome.fr${cleanPath}`;
         };
 
         if (!images || images.length === 0) {
