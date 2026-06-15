@@ -217,7 +217,7 @@ export const Objects: React.FC = () => {
 
         const getImageUrl = (path: string) => {
             if (path.startsWith('http')) return path;
-            return `http://51.77.141.175${path}`;
+            return `https://gdome.fr${path}`;
         };
 
         if (!images || images.length === 0) {

@@ -573,12 +573,12 @@ export const Plants: React.FC = () => {
                                       <div key={avatar.id_avatar} className="bg-white border rounded-lg overflow-hidden shadow-xs p-2 text-center">
                                         <div className="aspect-square w-full rounded bg-gray-100 overflow-hidden mb-2">
                                           <img 
-                                            src={`http://51.77.141.175:3000/${avatar.picture_path}`} 
+                                            src={`https://gdome.fr/api/${avatar.picture_path}`} 
                                             alt={avatar.title}
                                             className="w-full h-full object-cover"
                                             onError={(e) => {
                                               // Fallback si l'image serveur ne charge pas
-                                              (e.target as HTMLImageElement).src = 'http://51.77.141.175/dataset/data_plant/Lavande_r_01.jpg';
+                                              (e.target as HTMLImageElement).src = 'https://gdome.fr/dataset/data_plant/Lavande_r_01.jpg';
                                             }}
                                           />
                                         </div>
