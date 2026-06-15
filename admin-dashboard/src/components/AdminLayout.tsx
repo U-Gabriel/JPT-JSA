@@ -8,6 +8,7 @@ interface NavigationItem {
   allowedRoles: UserRole[];
 }
 
+
 const NAVIGATION_ITEMS: NavigationItem[] = [
   { name: 'Utilisateurs', href: '/users', allowedRoles: [USER_ROLES.SUPER_ADMIN] },
   { name: 'Objet', href: '/objects', allowedRoles: [USER_ROLES.ADMIN_SIMPLE, USER_ROLES.SUPER_ADMIN, USER_ROLES.ENGINEER] },
